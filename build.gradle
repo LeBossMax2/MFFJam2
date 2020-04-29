@@ -1,0 +1,152 @@
+buildscript {
+    repositories {
+        maven { url = 'https://files.minecraftforge.net/maven' }
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
+    }
+}
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'maven-publish'
+apply plugin: 'java-library'
+
+version = "1.0"
+group = "net.mffjam2"
+archivesBaseName = "mffjam2"
+
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
+
+minecraft {
+    mappings channel: 'snapshot', version: '20191011-1.14.3'
+
+    runs {
+        client {
+            workingDirectory project.file('run')
+
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', ''
+
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
+
+            mods {
+                mffjam2 {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        server {
+            workingDirectory project.file('run')
+
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', ''
+
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
+
+            mods {
+                mffjam2 {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        data {
+            workingDirectory project.file('run')
+
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
+
+            args '--mod', 'mffjam2', '--all', '--output', file('src/generated/resources/')
+
+            mods {
+                mffjam2 {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+}
+
+jar {
+    manifest {
+        attributes([
+                "Specification-Title"     : "mffjam2",
+                "Specification-Vendor"    : "",
+                "Specification-Version"   : "1", // We are version 1 of ourselves
+                "Implementation-Title"    : project.name,
+                "Implementation-Version"  : "${version}",
+                "Implementation-Vendor"   : "",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
+}
+
+def reobfFile = file("$buildDir/reobfJar/output.jar")
+def reobfArtifact = artifacts.add('default', reobfFile) {
+    type 'jar'
+    builtBy 'reobfJar'
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact reobfArtifact
+        }
+    }
+    repositories {
+        maven {
+            url "file:///${project.projectDir}/mcmodsrepo"
+        }
+    }
+}
+
+repositories {
+    jcenter()
+
+    maven { // TOP
+        name 'tterrag maven'
+        url "https://maven.tterrag.com/"
+    }
+
+    maven { // JEI
+        name = 'progwml6 maven'
+        url = "https://dvs1.progwml6.com/files/maven"
+    }
+    maven {
+        name = 'ourten'
+        url = 'https://maven.ferenyr.info/artifactory/libs-release'
+    }
+}
+
+dependencies {
+    minecraft "net.minecraftforge:forge:${project.forge_version}"
+
+    compileOnly 'org.projectlombok:lombok:1.18.12'
+
+    api fg.deobf("mcjty.theoneprobe:TheOneProbe-1.14:${project.top_version}") {
+        transitive = false
+    }
+    api fg.deobf("mezz.jei:jei-1.14.4:${project.jei_version}")
+
+    api "net.voxelindustry:brokkgui-core:${project.brokkgui_version}"
+    api fg.deobf("net.voxelindustry:brokkgui-binding-mc1.14:${project.brokkgui_version}")
+    api fg.deobf("net.voxelindustry:steamlayer-core:${project.steamlayer_version}")
+    api fg.deobf("net.voxelindustry:gizmos-1.14:${project.gizmos_version}")
+    compile "fr.ourten:teabeans:${project.teabeans_version}"
+
+    testCompile('org.junit.jupiter:junit-jupiter-api:5.3.2')
+    testCompile('org.mockito:mockito-core:2.24.0')
+    testCompile('org.mockito:mockito-junit-jupiter:2.24.0')
+    testCompile('org.assertj:assertj-core:3.10.0')
+
+    testCompileOnly 'org.projectlombok:lombok:1.18.12'
+
+    testRuntime('org.junit.jupiter:junit-jupiter-engine:5.3.2')
+}

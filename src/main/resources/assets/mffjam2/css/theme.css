@@ -1,0 +1,8 @@
+text {
+    shadow: false;
+    color: #404040;
+}
+
+#survival-inventory {
+    background-texture: assets("mffjam2:textures/gui/survival_inventory.png");
+}
