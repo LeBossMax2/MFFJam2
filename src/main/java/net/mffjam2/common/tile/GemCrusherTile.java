@@ -1,5 +1,6 @@
 package net.mffjam2.common.tile;
 
+import net.mffjam2.common.gem.GemProperty;
 import net.mffjam2.common.item.GemstoneItem;
 import net.mffjam2.setup.JamContainers;
 import net.mffjam2.setup.JamTiles;
@@ -7,40 +8,124 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tileentity.ITickableTileEntity;
+import net.minecraft.util.Direction;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.wrapper.RangedWrapper;
 import net.voxelindustry.steamlayer.container.ContainerBuilder;
 import net.voxelindustry.steamlayer.container.ContainerTileInventoryBuilder;
 import net.voxelindustry.steamlayer.inventory.InventoryHandler;
 import net.voxelindustry.steamlayer.tile.TileBase;
 
+import java.util.List;
+
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class GemCrusherTile extends TileBase implements INamedContainerProvider
+public class GemCrusherTile extends TileBase implements INamedContainerProvider, ITickableTileEntity
 {
+	private static int CRUSH_TIME = 40;
+	private static int OUTPUT_SLOTS = 5;
     private final InventoryHandler inventory;
+    private int progress;
 
     public GemCrusherTile()
     {
         super(JamTiles.GEM_CRUSHER);
 
-        this.inventory = new InventoryHandler(6);
+        inventory = new InventoryHandler(OUTPUT_SLOTS + 1);
     }
 
     @Override
     public void read(CompoundNBT compound)
     {
         super.read(compound);
-        this.inventory.deserializeNBT(compound.getCompound("Inventory"));
+        inventory.deserializeNBT(compound.getCompound("Inventory"));
+        compound.putInt("Progress", progress);
     }
 
     @Override
     public CompoundNBT write(CompoundNBT compound)
     {
     	compound = super.write(compound);
-        compound.put("Inventory", this.inventory.serializeNBT());
+        compound.put("Inventory", inventory.serializeNBT());
+        progress = compound.getInt("Progress");
         return compound;
+    }
+    
+    @Override
+    public void tick()
+    {
+    	ItemStack input = inventory.getStackInSlot(0);
+    	if (!input.isEmpty())
+    	{
+    		progress++;
+    		if (progress >= CRUSH_TIME)
+    		{
+    			progress = CRUSH_TIME;
+    			crushGem();
+    		}
+    	}
+    	else
+    		progress = 0;
+    }
+    
+    protected boolean crushGem()
+    {
+    	ItemStack input = inventory.extractItem(0, 1, false);
+    	if (!input.isEmpty())
+        	return false;
+    	
+		List<GemProperty> properties = GemstoneItem.getGemProperties(input);
+		NonNullList<ItemStack> outputStack = NonNullList.withSize(properties.size(), ItemStack.EMPTY);
+		for (int i = 0; i < properties.size(); i++)
+		{
+			outputStack.set(i, properties.get(i).getEssenceItem());
+		}
+		boolean[] usedSlot = new boolean[OUTPUT_SLOTS];
+		
+		// Check if all stacks can be inserted
+		for (ItemStack stack : outputStack)
+		{
+			boolean foundFit = false;
+    		for (int i = 0; i < OUTPUT_SLOTS; i++)
+    		{
+    			if (!usedSlot[i] && inventory.insertItem(i, stack, true).isEmpty())
+    			{
+    				usedSlot[i] = true;
+    				foundFit = true;
+    				break;
+    			}
+    		}
+    		if (!foundFit)
+    			return false;
+		}
+		
+		for (int i = 0; i < OUTPUT_SLOTS; i++)
+			usedSlot[i] = false;
+		
+		// Actually insert the stacks
+		for (ItemStack stack : outputStack)
+		{
+    		for (int i = 0; i < OUTPUT_SLOTS; i++)
+    		{
+    			if (!usedSlot[i] && inventory.insertItem(i, stack, false).isEmpty())
+    			{
+    				usedSlot[i] = true;
+    				break;
+    			}
+    		}
+		}
+    	
+    	progress = 0;
+    	return true;
     }
 
     @Override
@@ -48,6 +133,27 @@ public class GemCrusherTile extends TileBase implements INamedContainerProvider
     {
         if (isClient())
             askServerSync();
+    }
+    
+    @Override
+    @Nonnull
+    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side)
+    {
+    	if (cap != CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
+    		return super.getCapability(cap, side);
+    	
+    	if (side == null)
+    	{
+    		return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.orEmpty(cap, LazyOptional.of(() -> inventory));
+    	}
+    	else if (side != Direction.DOWN)
+    	{
+    		return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.orEmpty(cap, LazyOptional.of(() -> new RangedWrapper(inventory, 0, 1)));
+    	}
+    	else
+    	{
+    		return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.orEmpty(cap, LazyOptional.of(() -> new RangedWrapper(inventory, 1, OUTPUT_SLOTS + 1)));
+    	}
     }
 
     @Nullable
@@ -61,7 +167,7 @@ public class GemCrusherTile extends TileBase implements INamedContainerProvider
             .tile(this, inventory)
             .filterSlot(0, 80, 12, stack -> stack.getItem() instanceof GemstoneItem);
     	
-    	for (int i = 0; i < 5; i++)
+    	for (int i = 0; i < OUTPUT_SLOTS; i++)
     	{
     		b.outputSlot(i + 1, 44 + i * 18, 65);
     	}
