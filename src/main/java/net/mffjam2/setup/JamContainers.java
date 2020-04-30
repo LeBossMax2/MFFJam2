@@ -10,7 +10,7 @@ import net.minecraftforge.registries.ObjectHolder;
 import net.voxelindustry.brokkgui.wrapper.impl.BrokkGuiManager;
 import net.voxelindustry.steamlayer.container.BuiltContainer;
 import net.voxelindustry.steamlayer.container.SteamLayerContainerFactory;
-import net.mffjam2.client.gui.DummyGui;
+import net.mffjam2.client.gui.GemCrusherGui;
 
 import static net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus.MOD;
 
@@ -18,17 +18,16 @@ import static net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus.MOD;
 @ObjectHolder(MFFJam2.MODID)
 public class JamContainers
 {
-    @ObjectHolder("dummy")
-    public static ContainerType<BuiltContainer> DUMMY;
+    public static final ContainerType<BuiltContainer> GEM_CRUSHER = null;
 
     public static void registerScreens()
     {
-        ScreenManager.registerFactory(DUMMY, BrokkGuiManager.getContainerFactory(MFFJam2.MODID, DummyGui::new));
+        ScreenManager.registerFactory(GEM_CRUSHER, BrokkGuiManager.getContainerFactory(MFFJam2.MODID, GemCrusherGui::new));
     }
 
     @SubscribeEvent
     public static void onContainerRegister(Register<ContainerType<?>> event)
     {
-        event.getRegistry().register(SteamLayerContainerFactory.create().setRegistryName(MFFJam2.MODID, "dummy"));
+        event.getRegistry().register(SteamLayerContainerFactory.create().setRegistryName(MFFJam2.MODID, "gem_crusher"));
     }
 }

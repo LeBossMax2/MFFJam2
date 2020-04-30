@@ -2,6 +2,7 @@ package net.mffjam2.setup;
 
 import net.mffjam2.MFFJam2;
 import net.mffjam2.common.item.ModularSwordItem;
+import net.mffjam2.common.item.GemstoneItem;
 import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
@@ -25,6 +26,7 @@ public class JamItems
         event.getRegistry().registerAll(ITEMS.toArray(new Item[0]));
 
         registerItem(event, new ModularSwordItem(ITEM_PROPS), "modular_sword");
+        registerItem(event, new GemstoneItem(new Item.Properties().group(MFFJam2.TAB_ALL).maxStackSize(1)), "test_gem");
     }
 
     static void registerItem(Register<Item> event, Item item, String name)

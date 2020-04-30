@@ -7,21 +7,20 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.registries.ObjectHolder;
 import net.mffjam2.MFFJam2;
-import net.mffjam2.common.tile.DummyTile;
+import net.mffjam2.common.tile.GemCrusherTile;
 
 @ObjectHolder(MFFJam2.MODID)
 @EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD)
 public class JamTiles
 {
-    @ObjectHolder("dummy")
-    public static TileEntityType<DummyTile> DUMMY;
+    public static final TileEntityType<GemCrusherTile> GEM_CRUSHER = null;
 
     @SubscribeEvent
     public static void onTileRegister(RegistryEvent.Register<TileEntityType<?>> event)
     {
         event.getRegistry().register(Builder
-                .create(DummyTile::new, JamBlocks.DUMMY)
+                .create(GemCrusherTile::new, JamBlocks.GEM_CRUSHER)
                 .build(null)
-                .setRegistryName(MFFJam2.MODID, "dummy"));
+                .setRegistryName(MFFJam2.MODID, "gem_crusher"));
     }
 }
