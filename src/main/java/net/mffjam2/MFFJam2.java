@@ -5,6 +5,7 @@ import net.mffjam2.common.ServerProxy;
 import net.mffjam2.common.capability.GemSocketCapability;
 import net.mffjam2.compat.CompatManager;
 import net.mffjam2.setup.IProxy;
+import net.mffjam2.setup.JamGemProperties;
 import net.minecraft.block.Blocks;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
@@ -36,7 +37,8 @@ public class MFFJam2
     public MFFJam2()
     {
         instance = this;
-
+        
+        JamGemProperties.init();
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
     }
 
