@@ -2,6 +2,7 @@ package net.mffjam2;
 
 import net.mffjam2.client.ClientProxy;
 import net.mffjam2.common.ServerProxy;
+import net.mffjam2.common.capability.GemSocketCapability;
 import net.mffjam2.compat.CompatManager;
 import net.mffjam2.setup.IProxy;
 import net.minecraft.block.Blocks;
@@ -46,5 +47,7 @@ public class MFFJam2
         CompatManager.setup(e);
 
         MinecraftForge.EVENT_BUS.register(new TickHandler());
+
+        GemSocketCapability.register();
     }
 }

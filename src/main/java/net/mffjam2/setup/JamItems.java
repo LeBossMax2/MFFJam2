@@ -1,6 +1,7 @@
 package net.mffjam2.setup;
 
 import net.mffjam2.MFFJam2;
+import net.mffjam2.common.item.ModularSwordItem;
 import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
@@ -22,6 +23,8 @@ public class JamItems
     public static void onItemRegister(Register<Item> event)
     {
         event.getRegistry().registerAll(ITEMS.toArray(new Item[0]));
+
+        registerItem(event, new ModularSwordItem(ITEM_PROPS), "modular_sword");
     }
 
     static void registerItem(Register<Item> event, Item item, String name)
