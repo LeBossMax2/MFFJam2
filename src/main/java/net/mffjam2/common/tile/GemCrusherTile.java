@@ -1,5 +1,6 @@
 package net.mffjam2.common.tile;
 
+import net.mffjam2.MFFJam2;
 import net.mffjam2.common.gem.GemProperty;
 import net.mffjam2.common.item.GemstoneItem;
 import net.mffjam2.setup.JamContainers;
@@ -29,12 +30,18 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import fr.ourten.teabeans.value.BaseProperty;
+import fr.ourten.teabeans.value.ObservableValue;
+import lombok.Getter;
+
 public class GemCrusherTile extends TileBase implements INamedContainerProvider, ITickableTileEntity
 {
 	private static int CRUSH_TIME = 40;
 	private static int OUTPUT_SLOTS = 5;
     private final InventoryHandler inventory;
-    private int progress;
+    private final BaseProperty<Integer> progress = new BaseProperty<>(0, "Progress");
+    @Getter
+    private final ObservableValue<Float> progressRatio = progress.map(p -> p / (float)CRUSH_TIME);
 
     public GemCrusherTile()
     {
@@ -48,7 +55,7 @@ public class GemCrusherTile extends TileBase implements INamedContainerProvider,
     {
         super.read(compound);
         inventory.deserializeNBT(compound.getCompound("Inventory"));
-        compound.putInt("Progress", progress);
+        compound.putInt("Progress", progress.getValue());
     }
 
     @Override
@@ -56,7 +63,7 @@ public class GemCrusherTile extends TileBase implements INamedContainerProvider,
     {
     	compound = super.write(compound);
         compound.put("Inventory", inventory.serializeNBT());
-        progress = compound.getInt("Progress");
+        progress.setValue(compound.getInt("Progress"));
         return compound;
     }
     
@@ -66,15 +73,15 @@ public class GemCrusherTile extends TileBase implements INamedContainerProvider,
     	ItemStack input = inventory.getStackInSlot(0);
     	if (!input.isEmpty())
     	{
-    		progress++;
-    		if (progress >= CRUSH_TIME)
+    		progress.setValue(progress.getValue() + 1);
+    		if (progress.getValue() >= CRUSH_TIME)
     		{
-    			progress = CRUSH_TIME;
+    			progress.setValue(CRUSH_TIME);
     			crushGem();
     		}
     	}
     	else
-    		progress = 0;
+    		progress.setValue(0);
     }
     
     protected boolean crushGem()
@@ -124,7 +131,7 @@ public class GemCrusherTile extends TileBase implements INamedContainerProvider,
     		}
 		}
     	
-    	progress = 0;
+    	progress.setValue(0);
     	return true;
     }
 
@@ -172,12 +179,14 @@ public class GemCrusherTile extends TileBase implements INamedContainerProvider,
     		b.outputSlot(i + 1, 44 + i * 18, 65);
     	}
     	
-        return b.create(windowId);
+        return b.sync()
+        		.syncInteger(progress::getValue, progress::setValue)
+        		.create(windowId);
     }
 
 	@Override
 	public ITextComponent getDisplayName()
 	{
-		return new TranslationTextComponent("test");
+		return new TranslationTextComponent(MFFJam2.MODID + ".gui.gem_crusher.name");
 	}
 }
