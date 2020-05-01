@@ -80,6 +80,7 @@ eclipse/*
 screenshots/*
 run/*
 */run/*
+src/generated/*
 
 # Created by https://www.gitignore.io/api/jetbrains
 

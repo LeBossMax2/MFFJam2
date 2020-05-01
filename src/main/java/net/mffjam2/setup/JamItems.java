@@ -11,17 +11,40 @@ import net.minecraft.item.Item;
 import net.minecraftforge.event.RegistryEvent.Register;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.registries.ObjectHolder;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 @EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD)
+@ObjectHolder(MFFJam2.MODID)
 public class JamItems
 {
-    public static final Item.Properties ITEM_PROPS = new Item.Properties().group(MFFJam2.TAB_ALL);
-    public static final List<Item>      ITEMS      = new ArrayList<>();
+    private static final Item.Properties ITEM_PROPS = new Item.Properties().group(MFFJam2.TAB_ALL);
+    private static final List<Item>      ITEMS      = new ArrayList<>();
 
+    public static final ModularSwordItem MODULAR_SWORD = null;
+    public static final GemstoneItem TEST_GEM = null;
+    
+    public static final EssenceItem
+    	ESSENCE_FLIGHT_TYPE_NORMAL = null,
+    	ESSENCE_FLIGHT_TYPE_HOMING = null,
+    	ESSENCE_FLIGHT_TYPE_NO_CLIP = null,
+    	ESSENCE_FLIGHT_TYPE_BOUNCE = null,
+    	
+    	ESSENCE_SHOOT_TYPE_SINGLE = null,
+    	ESSENCE_SHOOT_TYPE_MULTISHOT = null,
+    	ESSENCE_SHOOT_TYPE_BURST = null,
+    	ESSENCE_SHOOT_TYPE_SCATTERSHOT = null,
+    	
+    	ESSENCE_SUMMON_TYPE_POINT_SELF = null,
+    	ESSENCE_SUMMON_TYPE_POINT_TARGET = null,
+    	ESSENCE_SUMMON_TYPE_SKY_SELF = null,
+    	ESSENCE_SUMMON_TYPE_SKY_TARGET = null,
+    	ESSENCE_SUMMON_TYPE_AREA_SELF = null,
+    	ESSENCE_SUMMON_TYPE_AREA_TARGET = null;
+    
     @SubscribeEvent
     public static void onItemRegister(Register<Item> event)
     {
