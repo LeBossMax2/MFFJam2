@@ -43,7 +43,13 @@ public class JamLanguagesProvider implements IDataProvider
 		
 		// Items
 		add(JamItems.MODULAR_SWORD, "Modular Sword", "Epée modulaire");
-		add(JamItems.TEST_GEM, "Test Gam", "Gemme de test");
+		
+		add(JamItems.FIRE_GEM, "Fire Gam", "Gemme de feu");
+		add(JamItems.ICE_GEM, "Ice Gam", "Gemme de glace");
+		add(JamItems.EXPLOSION_GEM, "Explosion Gam", "Gemme d'explosion");
+		add(JamItems.ELECTRIC_GEM, "Electric Gam", "Gemme électrique");
+		add(JamItems.VAMPIRISM_GEM, "Vampirism Gam", "Gemme de vampirisme");
+		add(JamItems.LIGHT_GEM, "Light Gam", "Gemme de lumière");
 
 		add(JamItems.ESSENCE_FLIGHT_TYPE_NORMAL, "Normal Flight Essence", "Essence de vol normal");
 		add(JamItems.ESSENCE_FLIGHT_TYPE_HOMING, "Homing Flight Essence", "Essence de vol dirigé");

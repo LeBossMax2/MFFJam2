@@ -1,5 +1,9 @@
 package net.mffjam2.common.gem;
 
+import java.util.List;
+
+import com.google.common.collect.ImmutableList;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -40,5 +44,10 @@ public class Gem implements INBTSerializable<CompoundNBT>
         flightType = FlightType.values()[tag.getByte("flightType")];
 
         power = tag.getInt("power");
+    }
+    
+    public List<GemProperty> getGemProperties()
+    {
+    	return ImmutableList.of(summonType.asProperty(), shootType.asProperty(), flightType.asProperty());
     }
 }

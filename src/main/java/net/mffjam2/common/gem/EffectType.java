@@ -7,5 +7,5 @@ public enum EffectType
     EXPLOSION,
     ELECTRIC,
     VAMPIRISM,
-    LIGTH
+    LIGHT
 }

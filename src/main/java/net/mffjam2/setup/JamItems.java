@@ -2,6 +2,7 @@ package net.mffjam2.setup;
 
 import net.mffjam2.MFFJam2;
 import net.mffjam2.common.item.ModularSwordItem;
+import net.mffjam2.common.gem.EffectType;
 import net.mffjam2.common.gem.GemProperty;
 import net.mffjam2.common.item.EssenceItem;
 import net.mffjam2.common.item.GemstoneItem;
@@ -25,7 +26,6 @@ public class JamItems
     private static final List<Item>      ITEMS      = new ArrayList<>();
 
     public static final ModularSwordItem MODULAR_SWORD = null;
-    public static final GemstoneItem TEST_GEM = null;
     
     public static final EssenceItem
     	ESSENCE_FLIGHT_TYPE_NORMAL = null,
@@ -45,18 +45,30 @@ public class JamItems
     	ESSENCE_SUMMON_TYPE_AREA_SELF = null,
     	ESSENCE_SUMMON_TYPE_AREA_TARGET = null;
     
+    public static final  GemstoneItem
+    	FIRE_GEM = null,
+    	ICE_GEM = null,
+    	EXPLOSION_GEM = null,
+    	ELECTRIC_GEM = null,
+    	VAMPIRISM_GEM = null,
+    	LIGHT_GEM = null;
+    
     @SubscribeEvent
     public static void onItemRegister(Register<Item> event)
     {
         event.getRegistry().registerAll(ITEMS.toArray(new Item[0]));
+
+        registerItem(event, new ModularSwordItem(new Item.Properties().group(MFFJam2.TAB_ALL)), "modular_sword");
         
-        for (GemProperty prop : JamGemProperties.getPROPERTIES())
+        for (EffectType effect : EffectType.values())
+        {
+            registerItem(event, new GemstoneItem(effect, new Item.Properties().group(MFFJam2.TAB_ALL).maxStackSize(1)), effect.toString().toLowerCase() +  "_gem");
+        }
+        
+        for (GemProperty prop : JamGemProperties.getPROPERTIES().values())
         {
             registerItem(event, new EssenceItem(prop, ITEM_PROPS), "essence_" + prop.getName());
         }
-
-        registerItem(event, new ModularSwordItem(ITEM_PROPS), "modular_sword");
-        registerItem(event, new GemstoneItem(new Item.Properties().group(MFFJam2.TAB_ALL).maxStackSize(1)), "test_gem");
     }
 
     static void registerItem(Register<Item> event, Item item, String name)

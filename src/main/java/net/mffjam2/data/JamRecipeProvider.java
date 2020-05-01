@@ -3,7 +3,7 @@ package net.mffjam2.data;
 import java.util.function.Consumer;
 
 import net.mffjam2.setup.JamBlocks;
-import net.mffjam2.setup.JamItems;
+import net.mffjam2.setup.JamTags;
 import net.minecraft.block.Blocks;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.IFinishedRecipe;
@@ -27,8 +27,8 @@ public class JamRecipeProvider extends RecipeProvider
 			.patternLine("CGC")
 			.patternLine("CCC")
 			.key('C', Blocks.COBBLESTONE)
-			.key('G', JamItems.TEST_GEM)
-			.addCriterion("has_gem", this.hasItem(JamItems.TEST_GEM))
+			.key('G', JamTags.GEMS)
+			.addCriterion("has_gem", this.hasItem(JamTags.GEMS))
 			.build(consumer);
 	}
 	

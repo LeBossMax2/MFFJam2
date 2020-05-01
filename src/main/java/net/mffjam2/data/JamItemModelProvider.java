@@ -24,7 +24,7 @@ public class JamItemModelProvider extends ItemModelProvider
 	protected void registerModels()
 	{
 		// Essences
-		for (GemProperty prop : JamGemProperties.getPROPERTIES())
+		for (GemProperty prop : JamGemProperties.getPROPERTIES().values())
         {
 			Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(MFFJam2.MODID, "essence_" + prop.getName()));
 			simpleItem(item, "essence");

@@ -3,6 +3,7 @@ package net.mffjam2.setup;
 import net.mffjam2.MFFJam2;
 import net.mffjam2.data.JamBlockStateProvider;
 import net.mffjam2.data.JamItemModelProvider;
+import net.mffjam2.data.JamItemTagProvider;
 import net.mffjam2.data.JamLanguagesProvider;
 import net.mffjam2.data.JamLootTableProvider;
 import net.mffjam2.data.JamRecipeProvider;
@@ -22,6 +23,7 @@ public class JamDataProviders
 
         if (event.includeServer())
         {
+            gen.addProvider(new JamItemTagProvider(gen));
             gen.addProvider(new JamRecipeProvider(gen));
             gen.addProvider(new JamLootTableProvider(gen));
         }

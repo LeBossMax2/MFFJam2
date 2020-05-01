@@ -1,7 +1,7 @@
 package net.mffjam2.setup;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.BiConsumer;
 
 import lombok.Getter;
@@ -17,11 +17,11 @@ import net.minecraftforge.registries.ForgeRegistries;
 public class JamGemProperties
 {
 	@Getter
-	private static final List<GemProperty> PROPERTIES = new ArrayList<>();
+	private static final Map<String, GemProperty> PROPERTIES = new HashMap<>();
 	
 	private static void register(GemProperty property)
 	{
-		PROPERTIES.add(property);
+		PROPERTIES.put(property.getName(), property);
 	}
 	
 	private static <T> void register(String baseName, BiConsumer<Gem.GemBuilder, T> gemProperty, T value)
