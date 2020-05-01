@@ -86,15 +86,15 @@ public class GemCrusherTile extends TileBase implements INamedContainerProvider,
     
     protected boolean crushGem()
     {
-    	ItemStack input = inventory.extractItem(0, 1, false);
-    	if (!input.isEmpty())
+    	ItemStack input = inventory.extractItem(0, 1, true);
+    	if (input.isEmpty())
         	return false;
     	
 		List<GemProperty> properties = GemstoneItem.getGemProperties(input);
 		NonNullList<ItemStack> outputStack = NonNullList.withSize(properties.size(), ItemStack.EMPTY);
 		for (int i = 0; i < properties.size(); i++)
 		{
-			outputStack.set(i, properties.get(i).getEssenceItem());
+			outputStack.set(i, properties.get(i).getEssenceItem().copy());
 		}
 		boolean[] usedSlot = new boolean[OUTPUT_SLOTS];
 		
@@ -104,7 +104,7 @@ public class GemCrusherTile extends TileBase implements INamedContainerProvider,
 			boolean foundFit = false;
     		for (int i = 0; i < OUTPUT_SLOTS; i++)
     		{
-    			if (!usedSlot[i] && inventory.insertItem(i, stack, true).isEmpty())
+    			if (!usedSlot[i] && inventory.insertItem(i + 1, stack, true).isEmpty())
     			{
     				usedSlot[i] = true;
     				foundFit = true;
@@ -115,6 +115,8 @@ public class GemCrusherTile extends TileBase implements INamedContainerProvider,
     			return false;
 		}
 		
+		inventory.extractItem(0, 1, false);
+		
 		for (int i = 0; i < OUTPUT_SLOTS; i++)
 			usedSlot[i] = false;
 		
@@ -123,7 +125,7 @@ public class GemCrusherTile extends TileBase implements INamedContainerProvider,
 		{
     		for (int i = 0; i < OUTPUT_SLOTS; i++)
     		{
-    			if (!usedSlot[i] && inventory.insertItem(i, stack, false).isEmpty())
+    			if (!usedSlot[i] && inventory.insertItem(i + 1, stack, false).isEmpty())
     			{
     				usedSlot[i] = true;
     				break;
