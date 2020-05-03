@@ -24,7 +24,7 @@ public class JamGemProperties
 		PROPERTIES.put(property.getName(), property);
 	}
 	
-	private static <T> void register(String baseName, BiConsumer<Gem.GemBuilder, T> gemProperty, T value)
+	private static <T> void register(String baseName, BiConsumer<Gem, T> gemProperty, T value)
 	{
 		register(GemProperty.create(baseName + "_" + value.toString().toLowerCase(), gemProperty, value, () -> ForgeRegistries.ITEMS.getValue(new ResourceLocation(MFFJam2.MODID, "essence_" + baseName + "_" + value.toString().toLowerCase()))));
 	}
@@ -33,15 +33,15 @@ public class JamGemProperties
 	{
 		for (FlightType type : FlightType.values())
 		{
-			register("flight_type", Gem.GemBuilder::flightType, type);
+			register("flight_type", Gem::setFlightType, type);
 		}
 		for (ShootType type : ShootType.values())
 		{
-			register("shoot_type", Gem.GemBuilder::shootType, type);
+			register("shoot_type", Gem::setShootType, type);
 		}
 		for (SummonType type : SummonType.values())
 		{
-			register("summon_type", Gem.GemBuilder::summonType, type);
+			register("summon_type", Gem::setSummonType, type);
 		}
 	}
 }

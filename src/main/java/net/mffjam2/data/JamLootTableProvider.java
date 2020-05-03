@@ -83,6 +83,7 @@ public class JamLootTableProvider extends LootTableProvider
 		protected void addTables()
 		{
 			func_218492_c(JamBlocks.GEM_CRUSHER); // registerDropSelfLootTable
+			func_218492_c(JamBlocks.GEM_INFUSER);
 		}
 		
 		@Override

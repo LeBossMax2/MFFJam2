@@ -6,3 +6,26 @@ text {
 #survival-inventory {
     background-texture: assets("mffjam2:textures/gui/survival_inventory.png");
 }
+
+#infuser-inventory {
+    background-texture: assets("mffjam2:textures/gui/gem_infuser_inventory.png");
+}
+
+#main-panel {
+    background-color: #C6C6C6;
+    border-width: 4;
+    border-image-source: assets("mffjam2:textures/gui/background_generic.png");
+    border-image-slice: 40%;
+}
+
+button {
+    background-texture: assets("minecraft:textures/gui/widgets.png", 0, 0.17578125, 0.78125, 0.2578125);
+}
+
+button:active {
+    background-texture: assets("minecraft:textures/gui/widgets.png", 0, 0.2578125, 0.78125, 0.3359375);
+}
+
+button:hover {
+    background-texture: assets("minecraft:textures/gui/widgets.png", 0, 0.3359375, 0.78125, 0.4140625);
+}

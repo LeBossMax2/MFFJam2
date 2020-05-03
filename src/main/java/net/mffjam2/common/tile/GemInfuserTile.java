@@ -2,19 +2,18 @@ package net.mffjam2.common.tile;
 
 import net.mffjam2.MFFJam2;
 import net.mffjam2.common.capability.GemCapability;
-import net.mffjam2.common.gem.GemProperty;
-import net.mffjam2.common.item.GemstoneItem;
+import net.mffjam2.common.item.EssenceItem;
 import net.mffjam2.setup.JamContainers;
 import net.mffjam2.setup.JamTiles;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.util.Direction;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.common.capabilities.Capability;
@@ -26,7 +25,7 @@ import net.voxelindustry.steamlayer.container.ContainerTileInventoryBuilder;
 import net.voxelindustry.steamlayer.inventory.InventoryHandler;
 import net.voxelindustry.steamlayer.tile.TileBase;
 
-import java.util.List;
+import java.util.function.Predicate;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -35,20 +34,24 @@ import fr.ourten.teabeans.value.BaseProperty;
 import fr.ourten.teabeans.value.ObservableValue;
 import lombok.Getter;
 
-public class GemCrusherTile extends TileBase implements INamedContainerProvider, ITickableTileEntity
+public class GemInfuserTile extends TileBase implements INamedContainerProvider, ITickableTileEntity
 {
-	private static int CRUSH_TIME = 40;
-	private static int OUTPUT_SLOTS = 5;
+	private static int INFUSE_TIME = 40;
+	private static int ESSENCE_SLOTS = 8;
     private final InventoryHandler inventory;
     private final BaseProperty<Integer> progress = new BaseProperty<>(0, "Progress");
     @Getter
-    private final ObservableValue<Float> progressRatio = progress.map(p -> p / (float)CRUSH_TIME);
+    private final BaseProperty<Boolean> active = new BaseProperty<>(false, "Active");
+    @Getter
+    private final ObservableValue<Float> progressRatio = progress.map(p -> p / (float)INFUSE_TIME);
+    @Getter
+    private final BaseProperty<Boolean> canInfuse = new BaseProperty<>(false, "CanInfuse");
 
-    public GemCrusherTile()
+    public GemInfuserTile()
     {
-        super(JamTiles.GEM_CRUSHER);
-
-        inventory = new InventoryHandler(OUTPUT_SLOTS + 1);
+        super(JamTiles.GEM_INFUSER);
+        inventory = new InventoryHandler(ESSENCE_SLOTS + 1);
+        inventory.setOnSlotChange(this::onSlotChange);
     }
 
     @Override
@@ -57,6 +60,8 @@ public class GemCrusherTile extends TileBase implements INamedContainerProvider,
         super.read(compound);
         inventory.deserializeNBT(compound.getCompound("Inventory"));
         compound.putInt("Progress", progress.getValue());
+        compound.putBoolean("Active", active.getValue());
+		canInfuse.setValue(canInfuse());
     }
 
     @Override
@@ -65,77 +70,74 @@ public class GemCrusherTile extends TileBase implements INamedContainerProvider,
     	compound = super.write(compound);
         compound.put("Inventory", inventory.serializeNBT());
         progress.setValue(compound.getInt("Progress"));
+        active.setValue(compound.getBoolean("Active"));
         return compound;
+    }
+    
+    private boolean canInfuse()
+    {
+    	ItemStack input = inventory.getStackInSlot(0);
+    	if (input.isEmpty())
+    		return false;
+    	
+    	for (int i = 0; i < ESSENCE_SLOTS; i++)
+    	{
+    		if (!inventory.getStackInSlot(i + 1).isEmpty())
+    			return true;
+    	}
+    	return false;
     }
     
     @Override
     public void tick()
     {
-    	ItemStack input = inventory.getStackInSlot(0);
-    	if (!input.isEmpty())
+    	if (canInfuse() && active.getValue())
     	{
     		progress.setValue(progress.getValue() + 1);
-    		if (progress.getValue() >= CRUSH_TIME)
+    		if (progress.getValue() >= INFUSE_TIME)
     		{
-    			progress.setValue(CRUSH_TIME);
-    			crushGem();
+    			progress.setValue(INFUSE_TIME);
+    			finishInfusion();
     		}
     	}
     	else
     		progress.setValue(0);
     }
     
-    protected boolean crushGem()
+    public boolean startInfusion()
     {
-    	ItemStack input = inventory.extractItem(0, 1, true);
-    	if (input.isEmpty())
-        	return false;
+    	if (canInfuse())
+    	{
+    		progress.setValue(0);
+    		active.setValue(true);
+    		canInfuse.setValue(false);
+    		return true;
+    	}
     	
-		List<GemProperty> properties = GemstoneItem.getGemProperties(input);
-		NonNullList<ItemStack> outputStack = NonNullList.withSize(properties.size(), ItemStack.EMPTY);
-		for (int i = 0; i < properties.size(); i++)
-		{
-			outputStack.set(i, properties.get(i).getEssenceItem().copy());
-		}
-		boolean[] usedSlot = new boolean[OUTPUT_SLOTS];
-		
-		// Check if all stacks can be inserted
-		for (ItemStack stack : outputStack)
-		{
-			boolean foundFit = false;
-    		for (int i = 0; i < OUTPUT_SLOTS; i++)
-    		{
-    			if (!usedSlot[i] && inventory.insertItem(i + 1, stack, true).isEmpty())
+    	return false;
+    }
+    
+    private void finishInfusion()
+    {
+    	ItemStack input = inventory.getStackInSlot(0);
+    	input.getCapability(GemCapability.GEM_CAPABILITY).ifPresent(gem ->
+    	{
+    		for (int i = 0; i < ESSENCE_SLOTS; i++)
+        	{
+    			Item essence = inventory.extractItem(i + 1, 1, false).getItem();
+    			if (essence instanceof EssenceItem)
     			{
-    				usedSlot[i] = true;
-    				foundFit = true;
-    				break;
+    				((EssenceItem)essence).getGemProperty().applyProperty(gem);
     			}
-    		}
-    		if (!foundFit)
-    			return false;
-		}
-		
-		inventory.extractItem(0, 1, false);
-		
-		for (int i = 0; i < OUTPUT_SLOTS; i++)
-			usedSlot[i] = false;
-		
-		// Actually insert the stacks
-		for (ItemStack stack : outputStack)
-		{
-    		for (int i = 0; i < OUTPUT_SLOTS; i++)
-    		{
-    			if (!usedSlot[i] && inventory.insertItem(i + 1, stack, false).isEmpty())
-    			{
-    				usedSlot[i] = true;
-    				break;
-    			}
-    		}
-		}
-    	
+        	}
+    	});
+    }
+    
+    private void onSlotChange(int newStack)
+    {
+    	active.setValue(false);
     	progress.setValue(0);
-    	return true;
+		canInfuse.setValue(canInfuse());
     }
 
     @Override
@@ -156,13 +158,13 @@ public class GemCrusherTile extends TileBase implements INamedContainerProvider,
     	{
     		return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.orEmpty(cap, LazyOptional.of(() -> inventory));
     	}
-    	else if (side != Direction.DOWN)
+    	else if (side.getAxis() == Direction.Axis.Y)
     	{
     		return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.orEmpty(cap, LazyOptional.of(() -> new RangedWrapper(inventory, 0, 1)));
     	}
     	else
     	{
-    		return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.orEmpty(cap, LazyOptional.of(() -> new RangedWrapper(inventory, 1, OUTPUT_SLOTS + 1)));
+    		return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.orEmpty(cap, LazyOptional.of(() -> new RangedWrapper(inventory, 1, ESSENCE_SLOTS + 1)));
     	}
     }
 
@@ -170,26 +172,37 @@ public class GemCrusherTile extends TileBase implements INamedContainerProvider,
     @Override
     public Container createMenu(int windowId, PlayerInventory playerInventory, PlayerEntity player)
     {
-    	ContainerTileInventoryBuilder b = new ContainerBuilder(JamContainers.GEM_CRUSHER, player)
+    	ContainerTileInventoryBuilder b = new ContainerBuilder(JamContainers.GEM_INFUSER, player)
             .player(player)
             .inventory(8, 98)
             .hotbar(8, 156)
             .tile(this, inventory)
-            .filterSlot(0, 80, 12, stack -> stack.getCapability(GemCapability.GEM_CAPABILITY, null).isPresent());
+            .filterSlot(0, 80, 47, stack -> stack.getCapability(GemCapability.GEM_CAPABILITY).isPresent());
     	
-    	for (int i = 0; i < OUTPUT_SLOTS; i++)
+    	Predicate<ItemStack> essenceFilter = stack -> stack.getItem() instanceof EssenceItem;
+    	
+    	for (int i = 0; i < 3; i++)
     	{
-    		b.outputSlot(i + 1, 44 + i * 18, 65);
+    		b.filterSlot(i + 1, 62 + i * 18, 29, essenceFilter);
     	}
     	
-        return b.sync()
-        		.syncInteger(progress::getValue, progress::setValue)
-        		.create(windowId);
+    	b.filterSlot(4, 62, 47, essenceFilter);
+    	b.filterSlot(5, 62 + 2 * 18, 47, essenceFilter);
+
+    	for (int i = 0; i < 3; i++)
+    	{
+    		b.filterSlot(i + 6, 62 + i * 18, 65, essenceFilter);
+    	}
+    	
+        return b
+        	.sync()
+    		.syncInteger(progress::getValue, progress::setValue)
+    		.create(windowId);
     }
 
 	@Override
 	public ITextComponent getDisplayName()
 	{
-		return new TranslationTextComponent(MFFJam2.MODID + ".gui.gem_crusher.name");
+		return new TranslationTextComponent(MFFJam2.MODID + ".gui.gem_infuser.name");
 	}
 }

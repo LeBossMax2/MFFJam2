@@ -70,6 +70,8 @@ public class JamLanguagesProvider implements IDataProvider
 		
 		// Gui
 		add(MFFJam2.MODID + ".gui.gem_crusher.name", "Gem Crusher", "Broyeur de gemmes");
+		add(MFFJam2.MODID + ".gui.gem_infuser.name", "Gem Infuser", "Infuseur de gemmes");
+		add(MFFJam2.MODID + ".gui.gem_infuse.button", "Infuse", "Infuser");
     }
 	
 	@Override

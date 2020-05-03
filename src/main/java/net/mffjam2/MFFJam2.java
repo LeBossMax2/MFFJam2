@@ -7,6 +7,7 @@ import net.mffjam2.common.capability.GemSocketCapability;
 import net.mffjam2.compat.CompatManager;
 import net.mffjam2.setup.IProxy;
 import net.mffjam2.setup.JamGemProperties;
+import net.mffjam2.setup.JamNetwork;
 import net.minecraft.block.Blocks;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
@@ -53,5 +54,7 @@ public class MFFJam2
 
         GemCapability.register();
         GemSocketCapability.register();
+        
+        JamNetwork.registerPackets();
     }
 }
