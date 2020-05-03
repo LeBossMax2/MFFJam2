@@ -63,12 +63,10 @@ public class GemSocketGui extends BrokkGuiContainer<BuiltContainer>
         GuiAbsolutePane socketPanel = new GuiAbsolutePane();
         socketPanel.setID("socket-panel");
         socketPanel.setSize(58, 74);
-        socketPanel.setStyle("border-color: pink; border-width: 1;");
 
         ItemStackView currentGem = new ItemStackView();
         currentGem.setItemTooltip(true);
         currentGem.setSize(10, 10);
-        currentGem.setStyle("border-color: aqua; border-width: 1;");
         socketPanel.addChild(currentGem, 18, 31);
 
         currentGem.setOnClickEvent(e ->

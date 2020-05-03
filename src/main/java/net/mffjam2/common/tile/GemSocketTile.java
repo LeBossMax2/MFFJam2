@@ -63,10 +63,10 @@ public class GemSocketTile extends TileBase implements INamedContainerProvider, 
     {
         return new ContainerBuilder(JamContainers.GEM_SOCKET, player)
                 .player(player)
-                .inventory(8, 94)
-                .hotbar(8, 152)
+                .inventory(8, 98)
+                .hotbar(8, 156)
                 .tile(this, inventory)
-                .filterSlot(0, 40, 40, stack -> stack.getCapability(GemSocketCapability.GEM_SOCKET_CAPABILITY).isPresent())
+                .filterSlot(0, 82, 70, stack -> stack.getCapability(GemSocketCapability.GEM_SOCKET_CAPABILITY).isPresent())
                 .create(windowID);
     }
 
