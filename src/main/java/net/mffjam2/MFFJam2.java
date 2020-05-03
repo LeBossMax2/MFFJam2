@@ -4,6 +4,7 @@ import net.mffjam2.client.ClientProxy;
 import net.mffjam2.common.ServerProxy;
 import net.mffjam2.common.capability.GemCapability;
 import net.mffjam2.common.capability.GemSocketCapability;
+import net.mffjam2.common.packet.SpellTriggerPacket;
 import net.mffjam2.compat.CompatManager;
 import net.mffjam2.setup.IProxy;
 import net.mffjam2.setup.JamGemProperties;
@@ -18,6 +19,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.voxelindustry.steamlayer.common.container.CustomCreativeTab;
 import net.voxelindustry.steamlayer.core.TickHandler;
+import net.voxelindustry.steamlayer.network.packet.PacketHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -39,7 +41,7 @@ public class MFFJam2
     public MFFJam2()
     {
         instance = this;
-        
+
         JamGemProperties.init();
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
     }
@@ -54,7 +56,8 @@ public class MFFJam2
 
         GemCapability.register();
         GemSocketCapability.register();
-        
+
         JamNetwork.registerPackets();
+        PacketHandler.getInstance().register(SpellTriggerPacket.class);
     }
 }
